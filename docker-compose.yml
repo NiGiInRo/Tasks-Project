@@ -1,0 +1,36 @@
+services:
+  frontend:
+    build:
+      context: ./task-frontend
+      dockerfile: Dockerfile.dev
+    container_name: tasks-project-frontend
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./task-backend
+      dockerfile: Dockerfile.dev
+    container_name: tasks-project-backend
+    environment:
+      RAILS_ENV: development
+      MONGODB_HOST: mongo
+      MONGODB_PORT: 27017
+      MONGODB_DATABASE: task_backend_development
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:7
+    container_name: tasks-project-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
