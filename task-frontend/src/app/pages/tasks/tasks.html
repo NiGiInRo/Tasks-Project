@@ -1,0 +1,117 @@
+<section class="page fade-in">
+  <header class="page-header">
+    <div>
+      <p class="caption">Technical test</p>
+      <h2>Task management</h2>
+      <p class="muted">Create tasks and verify the Rails API flow with the ReMindMe visual language.</p>
+    </div>
+
+    <div class="inline-tags">
+      <span class="chip">GET /tasks</span>
+      <span class="chip">POST /tasks</span>
+      <span class="chip">MongoDB</span>
+    </div>
+  </header>
+
+  <section class="task-grid">
+    <article class="surface section-stack card-hover" id="create-task">
+      <div class="section-head">
+        <div>
+          <p class="caption">Create</p>
+          <h3>New task</h3>
+        </div>
+        <span class="chip">Validated form</span>
+      </div>
+
+      <form [formGroup]="taskForm" (ngSubmit)="submit()" class="task-form" data-testid="task-form">
+        <label class="field-group">
+          <span>Title</span>
+          <input
+            class="input-control"
+            type="text"
+            formControlName="title"
+            placeholder="Prepare deployment checklist"
+            data-testid="task-title-input"
+          />
+          @if (taskForm.controls.title.touched && taskForm.controls.title.invalid) {
+            <small class="field-error">Title is required.</small>
+          }
+        </label>
+
+        <label class="field-group">
+          <span>Description</span>
+          <textarea
+            class="input-control textarea-control"
+            rows="5"
+            formControlName="description"
+            placeholder="Describe the task objective for the team"
+            data-testid="task-description-input"
+          ></textarea>
+        </label>
+
+        <label class="field-group">
+          <span>Status</span>
+          <select class="input-control" formControlName="status" data-testid="task-status-select">
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+          </select>
+        </label>
+
+        @if (successMessage()) {
+          <p class="feedback success">{{ successMessage() }}</p>
+        }
+
+        @if (errorMessage()) {
+          <p class="feedback error">{{ errorMessage() }}</p>
+        }
+
+        <button class="btn btn-primary" type="submit" [disabled]="submitting()" data-testid="task-submit-button">
+          {{ submitting() ? 'Saving task...' : 'Save task' }}
+        </button>
+      </form>
+    </article>
+
+    <article class="surface section-stack card-hover" id="task-list">
+      <div class="section-head">
+        <div>
+          <p class="caption">List</p>
+          <h3>Task activity</h3>
+        </div>
+        <span class="chip">{{ tasks().length }} tasks</span>
+      </div>
+
+      @if (loading()) {
+        <p class="state muted">Loading tasks from the API...</p>
+      } @else if (!tasks().length) {
+        <p class="state muted">No tasks yet. Use the form to create the first one.</p>
+      } @else {
+        <ul class="task-list" data-testid="task-list">
+          @for (task of tasks(); track trackByTaskId($index, task)) {
+            <li class="task-row table-row card-hover" data-testid="task-item">
+              <div class="task-row-main">
+                <div class="task-title-wrap">
+                  <h4>{{ task.title }}</h4>
+                  <p class="muted">{{ task.description || 'No description provided.' }}</p>
+                </div>
+                <span class="priority-badge" [class.high]="task.status === 'completed'" [class.low]="task.status === 'pending'">
+                  {{ task.status }}
+                </span>
+              </div>
+
+              <dl class="task-meta">
+                <div>
+                  <dt>Created</dt>
+                  <dd>{{ task.created_at | date: 'medium' }}</dd>
+                </div>
+                <div>
+                  <dt>Updated</dt>
+                  <dd>{{ task.updated_at | date: 'medium' }}</dd>
+                </div>
+              </dl>
+            </li>
+          }
+        </ul>
+      }
+    </article>
+  </section>
+</section>
